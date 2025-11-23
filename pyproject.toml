@@ -1,0 +1,46 @@
+[build-system]
+requires = ["briefcase>=0.3.15"]
+build-backend = "briefcase.build_meta"
+
+[project]
+name = "habit_timer"
+version = "0.1.0"
+description = "跨平台 BeeWare/Toga 习惯打卡 + 番茄钟 示例"
+readme = "README.md"
+authors = [{ name = "HabitTimer", email = "example@example.com" }]
+requires-python = ">=3.10"
+dependencies = [
+    "toga==0.4.7",
+    "toga-gtk==0.4.7; sys_platform == 'linux'",
+    "toga-winforms==0.4.7; sys_platform == 'win32'",
+    "toga-cocoa==0.4.7; sys_platform == 'darwin'",
+]
+
+[tool.briefcase]
+project_name = "HabitTimer"
+bundle = "com.example"
+version = "0.1.0"
+url = "https://example.com"
+license = "MIT"
+author = "HabitTimer"
+author_email = "example@example.com"
+
+[tool.briefcase.app.habit_timer]
+formal_name = "HabitTimer"
+description = "个人习惯打卡 + 番茄钟（BeeWare/Toga 示例）"
+sources = ["src/habit_timer"]
+requires = [
+    "toga==0.4.7",
+    "toga-gtk==0.4.7; sys_platform == 'linux'",
+    "toga-winforms==0.4.7; sys_platform == 'win32'",
+    "toga-cocoa==0.4.7; sys_platform == 'darwin'",
+]
+
+[tool.briefcase.app.habit_timer.macOS]
+requires = ["std-nslog>=1.0.0"]
+
+[tool.briefcase.app.habit_timer.linux]
+requires = ["gtk4>=4.6.0"]
+
+[tool.briefcase.app.habit_timer.windows]
+requires = []
