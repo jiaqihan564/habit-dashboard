@@ -28,6 +28,7 @@ class Habit:
     target_per_week: int = 7
     enabled: bool = True
     created_at: dt.datetime = dataclasses.field(default_factory=dt.datetime.utcnow)
+    deleted_at: Optional[dt.datetime] = None
 
 
 @dataclasses.dataclass

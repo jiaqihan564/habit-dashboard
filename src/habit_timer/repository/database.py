@@ -36,7 +36,8 @@ class Database:
                 category TEXT DEFAULT '其它',
                 target_per_week INTEGER DEFAULT 7,
                 enabled INTEGER DEFAULT 1,
-                created_at TEXT NOT NULL
+                created_at TEXT NOT NULL,
+                deleted_at TEXT
             );
 
             CREATE TABLE IF NOT EXISTS habit_records (
@@ -78,6 +79,12 @@ class Database:
             VALUES (1, 25, 5, 15, 4);
             """
         )
+        # 兼容旧版本表结构，补充 deleted_at 字段
+        try:
+            conn.execute("ALTER TABLE habits ADD COLUMN deleted_at TEXT;")
+        except sqlite3.OperationalError:
+            # 已存在该字段时忽略
+            pass
         conn.commit()
 
     def close(self) -> None:

@@ -2,4 +2,5 @@ toga==0.4.7
 toga-gtk==0.4.7; sys_platform == 'linux'
 toga-winforms==0.4.7; sys_platform == 'win32'
 toga-cocoa==0.4.7; sys_platform == 'darwin'
-briefcase>=0.3.15
+travertino==0.3.0
+briefcase>=0.3.25

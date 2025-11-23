@@ -1,6 +1,6 @@
 [build-system]
-requires = ["briefcase>=0.3.15"]
-build-backend = "briefcase.build_meta"
+requires = ["setuptools>=61", "wheel", "briefcase>=0.3.25"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "habit_timer"
@@ -14,6 +14,7 @@ dependencies = [
     "toga-gtk==0.4.7; sys_platform == 'linux'",
     "toga-winforms==0.4.7; sys_platform == 'win32'",
     "toga-cocoa==0.4.7; sys_platform == 'darwin'",
+    "travertino==0.3.0",
 ]
 
 [tool.briefcase]
@@ -34,6 +35,7 @@ requires = [
     "toga-gtk==0.4.7; sys_platform == 'linux'",
     "toga-winforms==0.4.7; sys_platform == 'win32'",
     "toga-cocoa==0.4.7; sys_platform == 'darwin'",
+    "travertino==0.3.0",
 ]
 
 [tool.briefcase.app.habit_timer.macOS]

@@ -6,14 +6,17 @@ from .repository.database import Database
 from .repository.habit_repository import HabitRepository
 from .repository.pomodoro_repository import PomodoroRepository
 from .repository.record_repository import HabitRecordRepository
+from .service.backup_service import BackupService
 from .service.habit_service import HabitService
 from .service.pomodoro_service import PomodoroService
 from .service.record_service import HabitRecordService
 from .service.settings_service import SettingsService
+from .ui.calendar_view import CalendarView
 from .ui.pomodoro_view import PomodoroView
 from .ui.settings_view import SettingsView
 from .ui.stats_view import StatsView
 from .ui.today_view import TodayView
+from .utils.i18n import t
 
 
 class HabitTimerApp(toga.App):
@@ -34,6 +37,7 @@ class HabitTimerApp(toga.App):
         self.record_service = HabitRecordService(record_repo)
         self.pomodoro_service = PomodoroService(pomodoro_repo)
         self.settings_service = SettingsService(config_repo)
+        self.backup_service = BackupService(habit_repo, record_repo, pomodoro_repo, config_repo)
 
         # UI
         self.stats_view = StatsView(self.habit_service, self.pomodoro_service)
@@ -46,13 +50,17 @@ class HabitTimerApp(toga.App):
             self.settings_service,
             on_data_changed=self.refresh_views,
         )
-        self.settings_view = SettingsView(self.settings_service, on_saved=self.refresh_views)
+        self.calendar_view = CalendarView(self.habit_service, self.record_service)
+        self.settings_view = SettingsView(
+            self.settings_service, self.backup_service, on_saved=self.refresh_views
+        )
 
         tabs = toga.OptionContainer()
-        tabs.add("今日打卡", self.today_view)
-        tabs.add("番茄钟", self.pomodoro_view)
-        tabs.add("统计", self.stats_view)
-        tabs.add("设置", self.settings_view)
+        tabs.add(t("tabs.today"), self.today_view)
+        tabs.add(t("tabs.pomodoro"), self.pomodoro_view)
+        tabs.add(t("tabs.calendar"), self.calendar_view)
+        tabs.add(t("tabs.stats"), self.stats_view)
+        tabs.add(t("tabs.settings"), self.settings_view)
 
         self.main_window = toga.MainWindow(title=self.formal_name)
         self.main_window.content = tabs
@@ -63,6 +71,7 @@ class HabitTimerApp(toga.App):
         self.stats_view.refresh()
         self.pomodoro_view.refresh_habits()
         self.pomodoro_view.load_default_time()
+        self.calendar_view.refresh_habits()
 
 
 def main():

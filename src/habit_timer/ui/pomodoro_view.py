@@ -6,6 +6,7 @@ from ..domain.models import PomodoroSession
 from ..service.habit_service import HabitService
 from ..service.pomodoro_service import PomodoroService
 from ..service.settings_service import SettingsService
+from ..utils.i18n import t
 
 
 class PomodoroView(toga.Box):
@@ -28,19 +29,19 @@ class PomodoroView(toga.Box):
         self.remaining_seconds = 0
         self.timer = None
         self.active_session: PomodoroSession | None = None
-        self.habit_options = {"无关联": None}
+        self.habit_options = {t("pomodoro.none"): None}
 
-        self.habit_select = toga.Selection(items=["无关联"], style=Pack(width=200))
+        self.habit_select = toga.Selection(items=[t("pomodoro.none")], style=Pack(width=200))
         self.time_label = toga.Label("00:00", style=Pack(font_size=36, padding_bottom=8))
-        self.status_label = toga.Label("未开始", style=Pack(padding_bottom=8))
+        self.status_label = toga.Label(t("pomodoro.status.idle"), style=Pack(padding_bottom=8))
 
-        start_btn = toga.Button("开始番茄", on_press=self.start, style=Pack(padding=4))
-        pause_btn = toga.Button("暂停/继续", on_press=self.toggle_pause, style=Pack(padding=4))
-        stop_btn = toga.Button("结束", on_press=self.stop, style=Pack(padding=4))
+        start_btn = toga.Button(t("pomodoro.start"), on_press=self.start, style=Pack(padding=4))
+        pause_btn = toga.Button(t("pomodoro.pause"), on_press=self.toggle_pause, style=Pack(padding=4))
+        stop_btn = toga.Button(t("pomodoro.stop"), on_press=self.stop, style=Pack(padding=4))
 
         self.add(
             toga.Box(
-                children=[toga.Label("关联习惯"), self.habit_select],
+                children=[toga.Label(t("pomodoro.link")), self.habit_select],
                 style=Pack(direction=ROW, spacing=8, padding_bottom=8),
             )
         )
@@ -63,11 +64,11 @@ class PomodoroView(toga.Box):
 
     def refresh_habits(self):
         habits = self.habit_service.list_habits(enabled_only=True)
-        self.habit_options = {"无关联": None}
+        self.habit_options = {t("pomodoro.none"): None}
         for h in habits:
             self.habit_options[h.name] = h.id
         self.habit_select.items = list(self.habit_options.keys())
-        self.habit_select.value = "无关联"
+        self.habit_select.value = t("pomodoro.none")
 
     def start(self, widget):
         if self.state == "running":
@@ -79,18 +80,18 @@ class PomodoroView(toga.Box):
             habit_id=habit_id, planned_seconds=self.remaining_seconds
         )
         self.state = "running"
-        self.status_label.text = "番茄进行中"
+        self.status_label.text = t("pomodoro.status.running")
         self._start_timer()
 
     def toggle_pause(self, widget):
         if self.state == "running":
             self.state = "paused"
-            self.status_label.text = "已暂停"
+            self.status_label.text = t("pomodoro.status.paused")
             if self.timer:
                 self.timer.cancel()
         elif self.state == "paused":
             self.state = "running"
-            self.status_label.text = "继续计时"
+            self.status_label.text = t("pomodoro.status.resume")
             self._start_timer()
 
     def stop(self, widget):
@@ -118,7 +119,7 @@ class PomodoroView(toga.Box):
         if self.active_session:
             self.pomodoro_service.complete_session(self.active_session, success=success)
         self.state = "finished"
-        self.status_label.text = "完成" if success else "已结束"
+        self.status_label.text = t("pomodoro.status.finished") if success else t("pomodoro.status.stopped")
         if self.on_data_changed:
             self.on_data_changed()
         self.load_default_time()

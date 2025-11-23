@@ -36,8 +36,11 @@ class HabitService:
         self.habit_repo.update(habit)
 
     def delete_habit(self, habit_id: int) -> None:
-        # 通过外键 ON DELETE CASCADE 级联删除相关打卡记录
-        self.habit_repo.delete(habit_id)
+        # 软删除，保留历史记录，disabled 并标记 deleted_at
+        self.habit_repo.soft_delete(habit_id)
+
+    def get_habit(self, habit_id: int, include_deleted: bool = False) -> Habit | None:
+        return self.habit_repo.get(habit_id, include_deleted=include_deleted)
 
     def list_habits(self, enabled_only: bool = False) -> List[Habit]:
         return self.habit_repo.list_all(enabled_only=enabled_only)

@@ -50,22 +50,35 @@ class HabitRepository:
         )
         self.db.connect().commit()
 
-    def delete(self, habit_id: int) -> None:
-        """硬删除，相关记录通过 ON DELETE CASCADE 同步删除。"""
+    def soft_delete(self, habit_id: int) -> None:
+        """软删除：打标 deleted_at，保留历史记录。"""
         cursor = self.db.cursor()
-        cursor.execute("DELETE FROM habits WHERE id=?", (habit_id,))
+        cursor.execute(
+            "UPDATE habits SET enabled=0, deleted_at=? WHERE id=?",
+            (dt.datetime.utcnow().isoformat(), habit_id),
+        )
         self.db.connect().commit()
 
-    def get(self, habit_id: int) -> Optional[Habit]:
-        row = self.db.cursor().execute("SELECT * FROM habits WHERE id=?", (habit_id,)).fetchone()
+    def get(self, habit_id: int, include_deleted: bool = False) -> Optional[Habit]:
+        sql = "SELECT * FROM habits WHERE id=?"
+        params = [habit_id]
+        if not include_deleted:
+            sql += " AND deleted_at IS NULL"
+        row = self.db.cursor().execute(sql, params).fetchone()
         return self._to_model(row) if row else None
 
-    def list_all(self, enabled_only: bool = False) -> List[Habit]:
+    def list_all(self, enabled_only: bool = False, include_deleted: bool = False) -> List[Habit]:
         cursor = self.db.cursor()
+        clauses = []
+        params = []
         if enabled_only:
-            rows = cursor.execute("SELECT * FROM habits WHERE enabled=1 ORDER BY created_at DESC").fetchall()
-        else:
-            rows = cursor.execute("SELECT * FROM habits ORDER BY created_at DESC").fetchall()
+            clauses.append("enabled=1")
+        if not include_deleted:
+            clauses.append("deleted_at IS NULL")
+        where = ""
+        if clauses:
+            where = "WHERE " + " AND ".join(clauses)
+        rows = cursor.execute(f"SELECT * FROM habits {where} ORDER BY created_at DESC", params).fetchall()
         return [self._to_model(r) for r in rows]
 
     def _to_model(self, row) -> Habit:
@@ -77,4 +90,5 @@ class HabitRepository:
             target_per_week=row["target_per_week"],
             enabled=bool(row["enabled"]),
             created_at=dt.datetime.fromisoformat(row["created_at"]),
+            deleted_at=dt.datetime.fromisoformat(row["deleted_at"]) if row["deleted_at"] else None,
         )
