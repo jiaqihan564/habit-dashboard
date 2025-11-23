@@ -22,7 +22,7 @@ project_name = "HabitTimer"
 bundle = "com.example"
 version = "0.1.0"
 url = "https://example.com"
-license = "MIT"
+license = { file = "LICENSE" }
 author = "HabitTimer"
 author_email = "example@example.com"
 

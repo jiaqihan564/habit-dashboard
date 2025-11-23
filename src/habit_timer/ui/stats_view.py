@@ -11,10 +11,11 @@ class StatsView(toga.Box):
     """统计概览视图，使用文本展示。"""
 
     def __init__(self, habit_service: HabitService, pomodoro_service: PomodoroService):
-        super().__init__(style=Pack(direction=COLUMN, padding=10, flex=1))
+        # 先保存依赖，避免 Box 初始化过程中触发 refresh 时属性未就绪
         self.habit_service = habit_service
         self.pomodoro_service = pomodoro_service
         self.output = toga.MultilineTextInput(readonly=True, style=Pack(flex=1))
+        super().__init__(style=Pack(direction=COLUMN, padding=10, flex=1))
         self.add(self.output)
         self.refresh()
 
