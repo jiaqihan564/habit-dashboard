@@ -1,5 +1,6 @@
 import toga
 from toga.style import Pack
+from toga.style.pack import COLUMN
 
 from ..service.habit_service import HabitService
 from ..service.pomodoro_service import PomodoroService
@@ -9,7 +10,7 @@ class StatsView(toga.Box):
     """统计概览视图，使用简单文本展示。"""
 
     def __init__(self, habit_service: HabitService, pomodoro_service: PomodoroService):
-        super().__init__(style=Pack(direction="column", padding=10, flex=1))
+        super().__init__(style=Pack(direction=COLUMN, padding=10, flex=1))
         self.habit_service = habit_service
         self.pomodoro_service = pomodoro_service
         self.output = toga.MultilineTextInput(readonly=True, style=Pack(flex=1))

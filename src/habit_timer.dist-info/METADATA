@@ -1,0 +1,11 @@
+Metadata-Version: 2.1
+Briefcase-Version: 0.3.25
+Name: habit_timer
+Formal-Name: HabitTimer
+App-ID: com.example.habit-timer
+Version: 0.1.0
+Home-page: https://example.com
+Download-URL: https://example.com
+Author: HabitTimer
+Author-email: example@example.com
+Summary: 个人习惯打卡 + 番茄钟（BeeWare/Toga 示例）
