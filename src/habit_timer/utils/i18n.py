@@ -78,33 +78,23 @@ STRINGS = {
         "pomodoro.status.resume": "Resume",
         "pomodoro.status.finished": "Finished",
         "pomodoro.status.stopped": "Stopped",
-        "stats.habit": "[Habit Stats]",
+        "stats.habit": "【Habit Statistics】",
         "stats.none": "No habits",
-        "stats.pomodoro": "[Pomodoro Stats]",
-        "settings.save": "Save",
-        "settings.work": "Work(min)",
-        "settings.short": "Short break",
-        "settings.long": "Long break",
-        "settings.interval": "Long break interval",
-        "settings.export": "Export data",
-        "settings.import": "Import data(append)",
-        "dialog.export_success": "Exported",
-        "dialog.import_success": "Imported",
+        "stats.pomodoro": "【Pomodoro Statistics】",
+        "settings.save": "Save Configuration",
+        "settings.work": "Work Minutes",
+        "settings.short": "Short Break",
+        "settings.long": "Long Break",
+        "settings.interval": "Long Break Interval",
+        "settings.export": "Export Data",
+        "settings.import": "Import Data(Append)",
+        "dialog.export_success": "Export successful",
+        "dialog.import_success": "Import successful",
         "dialog.error": "Error",
     },
 }
 
 
-def set_lang(lang: str):
-    global LANG
-    if lang in STRINGS:
-        LANG = lang
-
-
-def t(key: str, **kwargs) -> str:
-    lang_dict = STRINGS.get(LANG, STRINGS["zh"])
-    text = lang_dict.get(key, key)
-    try:
-        return text.format(**kwargs)
-    except Exception:
-        return text
+def t(key: str) -> str:
+    """翻译键名到对应语言的文本。"""
+    return STRINGS.get(LANG, {}).get(key, key)

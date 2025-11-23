@@ -27,7 +27,7 @@ class Habit:
     category: str = "其它"
     target_per_week: int = 7
     enabled: bool = True
-    created_at: dt.datetime = dataclasses.field(default_factory=dt.datetime.utcnow)
+    created_at: dt.datetime = dataclasses.field(default_factory=lambda: dt.datetime.now(dt.timezone.utc))
     deleted_at: Optional[dt.datetime] = None
 
 
@@ -40,7 +40,7 @@ class HabitRecord:
     date: dt.date
     is_completed: bool
     note: str = ""
-    recorded_at: dt.datetime = dataclasses.field(default_factory=dt.datetime.utcnow)
+    recorded_at: dt.datetime = dataclasses.field(default_factory=lambda: dt.datetime.now(dt.timezone.utc))
 
 
 @dataclasses.dataclass

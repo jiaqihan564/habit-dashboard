@@ -11,7 +11,7 @@ class CalendarView(toga.Box):
     """最近30天完成情况的简易日历视图。"""
 
     def __init__(self, habit_service: HabitService, record_service: HabitRecordService):
-        super().__init__(style=Pack(direction=COLUMN, padding=10, flex=1, spacing=8))
+        super().__init__(style=Pack(direction=COLUMN, padding=10, flex=1))
         self.habit_service = habit_service
         self.record_service = record_service
         self.habit_options = {}
@@ -19,7 +19,7 @@ class CalendarView(toga.Box):
         self.habit_select = toga.Selection(style=Pack(width=250), on_change=self.on_select_change)
         self.display = toga.MultilineTextInput(readonly=True, style=Pack(flex=1))
 
-        top = toga.Box(style=Pack(direction=ROW, spacing=8))
+        top = toga.Box(style=Pack(direction=ROW, padding_bottom=8))
         top.add(toga.Label(t("calendar.habit_select")))
         top.add(self.habit_select)
         self.add(top)
@@ -32,7 +32,11 @@ class CalendarView(toga.Box):
         for h in habits:
             self.habit_options[h.name] = h.id
         self.habit_select.items = list(self.habit_options.keys())
-        self.habit_select.value = next(iter(self.habit_select.items), None)
+        # 设置默认选项为第一个可用选项，如果没有则设为None
+        if self.habit_select.items:
+            self.habit_select.value = self.habit_select.items[0]
+        else:
+            self.habit_select.value = None
         self.render_calendar()
 
     def on_select_change(self, widget):

@@ -11,7 +11,7 @@ class SettingsView(toga.Box):
     """设置视图：调整番茄钟默认配置。"""
 
     def __init__(self, settings_service: SettingsService, backup_service: BackupService, on_saved=None):
-        super().__init__(style=Pack(direction=COLUMN, padding=10, flex=1, spacing=8))
+        super().__init__(style=Pack(direction=COLUMN, padding=10, flex=1))
         self.settings_service = settings_service
         self.backup_service = backup_service
         self.on_saved = on_saved
@@ -21,7 +21,7 @@ class SettingsView(toga.Box):
         self.long_input = toga.NumberInput(min_value=1, max_value=180, style=Pack(width=100))
         self.interval_input = toga.NumberInput(min_value=1, max_value=10, style=Pack(width=100))
 
-        form = toga.Box(style=Pack(direction=ROW, spacing=10))
+        form = toga.Box(style=Pack(direction=ROW, padding_bottom=8))
         form.add(toga.Label(t("settings.work"), style=Pack(width=80)))
         form.add(self.work_input)
         form.add(toga.Label(t("settings.short"), style=Pack(width=50)))
@@ -36,7 +36,7 @@ class SettingsView(toga.Box):
         import_btn = toga.Button(t("settings.import"), on_press=self.import_data, style=Pack(padding_left=6))
         self.add(form)
         self.add(save_btn)
-        self.add(toga.Box(children=[export_btn, import_btn], style=Pack(direction=ROW, spacing=8)))
+        self.add(toga.Box(children=[export_btn, import_btn], style=Pack(direction=ROW, padding_top=6)))
         self.load()
 
     def load(self):

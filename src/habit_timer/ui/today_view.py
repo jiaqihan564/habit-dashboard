@@ -9,7 +9,7 @@ from ..utils.i18n import t
 
 
 class TodayView(toga.Box):
-    """今日习惯视图，负责展示及打卡 UI 调用流程。"""
+    """今日习惯视图：展示列表并提供打卡、编辑、删除的 UI 调用流程。"""
 
     def __init__(
         self,
@@ -17,16 +17,16 @@ class TodayView(toga.Box):
         record_service: HabitRecordService,
         on_data_changed=None,
     ):
-        super().__init__(style=Pack(direction=COLUMN, padding=10, flex=1))
+        # 先保存依赖与控件引用，再调用父类，避免父类 refresh 链触发访问未初始化属性
         self.habit_service = habit_service
         self.record_service = record_service
         self.on_data_changed = on_data_changed
-        self.list_box = toga.Box(style=Pack(direction=COLUMN, spacing=8))
+        self.list_box = toga.Box(style=Pack(direction=COLUMN))
         self.editing_habit_id = None
 
         self.name_input = toga.TextInput(placeholder=t("today.name"), style=Pack(flex=1))
         self.category_input = toga.TextInput(placeholder=t("today.category"), style=Pack(width=120))
-        self.target_input = toga.NumberInput(value=7, min_value=1, max_value=7, style=Pack(width=70))
+        self.target_input = toga.NumberInput(value=7, min=1, max=7, style=Pack(width=70))
         self.add_btn = toga.Button(t("today.add"), on_press=self.add_habit, style=Pack(padding_left=8))
 
         form_row = toga.Box(
@@ -36,13 +36,14 @@ class TodayView(toga.Box):
                 self.target_input,
                 self.add_btn,
             ],
-            style=Pack(direction=ROW, spacing=8, padding_bottom=6),
+            style=Pack(direction=ROW, padding_bottom=6),
         )
 
+        super().__init__(style=Pack(direction=COLUMN, padding=10, flex=1))
         self.add(form_row)
         self.scroll = toga.ScrollContainer(content=self.list_box, style=Pack(flex=1))
         self.add(self.scroll)
-        self.refresh()
+        self.refresh_view()
 
     def add_habit(self, widget):
         name = self.name_input.value.strip()
@@ -65,11 +66,14 @@ class TodayView(toga.Box):
         self.add_btn.text = t("today.add")
         if self.on_data_changed:
             self.on_data_changed()
-        self.refresh()
+        self.refresh_view()
 
-    def refresh(self):
-        """重新渲染习惯列表。"""
-        self.list_box.children = []
+    def refresh_view(self):
+        """重新渲染习惯列表，避免覆盖 Toga 的 refresh。"""
+        # 清空容器中的所有子元素
+        for child in list(self.list_box.children):
+            self.list_box.remove(child)
+        
         data = self.habit_service.today_status()
         if not data:
             self.list_box.add(toga.Label(t("today.no_habit")))
@@ -80,10 +84,10 @@ class TodayView(toga.Box):
             is_completed = item["is_completed"]
             current_streak, longest_streak = self.habit_service.compute_streaks(habit.id)
 
-            row = toga.Box(style=Pack(direction=ROW, alignment="center", spacing=8))
+            row = toga.Box(style=Pack(direction=ROW, alignment="center", padding_bottom=6))
             info = toga.Label(
                 f"{habit.name} [{habit.category}] 目标/周:{habit.target_per_week} | 连续:{current_streak}/{longest_streak}",
-                style=Pack(flex=1),
+                style=Pack(flex=1, padding_right=8),
             )
             switch = toga.Switch(
                 t("today.complete"), is_on=is_completed, on_change=self._make_toggle_handler(habit.id)
@@ -101,8 +105,7 @@ class TodayView(toga.Box):
             self.record_service.set_today_status(habit_id, widget.is_on)
             if self.on_data_changed:
                 self.on_data_changed()
-            # 立即刷新 UI，保持状态一致
-            self.refresh()
+            self.refresh_view()
 
         return handler
 
@@ -121,6 +124,6 @@ class TodayView(toga.Box):
             self.habit_service.delete_habit(habit_id)
             if self.on_data_changed:
                 self.on_data_changed()
-            self.refresh()
+            self.refresh_view()
 
         return handler

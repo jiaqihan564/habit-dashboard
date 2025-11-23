@@ -5,8 +5,13 @@ from ..domain.models import Habit
 from .database import Database
 
 
+def now_utc_iso():
+    """获取当前 UTC 时间的 ISO 格式字符串。"""
+    return dt.datetime.now(dt.timezone.utc).isoformat()
+
+
 class HabitRepository:
-    """习惯持久化，封装 CRUD 与简单查询。"""
+    """习惯定义的持久化层，封装数据库操作细节。"""
 
     def __init__(self, db: Database):
         self.db = db
@@ -23,20 +28,20 @@ class HabitRepository:
                 habit.description,
                 habit.category,
                 habit.target_per_week,
-                1 if habit.enabled else 0,
-                habit.created_at.isoformat(),
+                habit.enabled,
+                now_utc_iso(),
             ),
         )
-        habit.id = cursor.lastrowid
         self.db.connect().commit()
+        habit.id = cursor.lastrowid
         return habit
 
     def update(self, habit: Habit) -> None:
         cursor = self.db.cursor()
         cursor.execute(
             """
-            UPDATE habits
-            SET name=?, description=?, category=?, target_per_week=?, enabled=?
+            UPDATE habits SET
+                name=?, description=?, category=?, target_per_week=?, enabled=?
             WHERE id=?
             """,
             (
@@ -44,7 +49,7 @@ class HabitRepository:
                 habit.description,
                 habit.category,
                 habit.target_per_week,
-                1 if habit.enabled else 0,
+                habit.enabled,
                 habit.id,
             ),
         )
@@ -55,7 +60,7 @@ class HabitRepository:
         cursor = self.db.cursor()
         cursor.execute(
             "UPDATE habits SET enabled=0, deleted_at=? WHERE id=?",
-            (dt.datetime.utcnow().isoformat(), habit_id),
+            (now_utc_iso(), habit_id),
         )
         self.db.connect().commit()
 
@@ -89,6 +94,6 @@ class HabitRepository:
             category=row["category"],
             target_per_week=row["target_per_week"],
             enabled=bool(row["enabled"]),
-            created_at=dt.datetime.fromisoformat(row["created_at"]),
-            deleted_at=dt.datetime.fromisoformat(row["deleted_at"]) if row["deleted_at"] else None,
+            created_at=dt.datetime.fromisoformat(row["created_at"]).replace(tzinfo=dt.timezone.utc) if row["created_at"] else dt.datetime.now(dt.timezone.utc),
+            deleted_at=dt.datetime.fromisoformat(row["deleted_at"]).replace(tzinfo=dt.timezone.utc) if row["deleted_at"] else None,
         )

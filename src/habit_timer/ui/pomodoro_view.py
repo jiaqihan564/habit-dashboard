@@ -42,7 +42,7 @@ class PomodoroView(toga.Box):
         self.add(
             toga.Box(
                 children=[toga.Label(t("pomodoro.link")), self.habit_select],
-                style=Pack(direction=ROW, spacing=8, padding_bottom=8),
+                style=Pack(direction=ROW, padding_bottom=8),
             )
         )
         self.add(self.time_label)
@@ -50,7 +50,7 @@ class PomodoroView(toga.Box):
         self.add(
             toga.Box(
                 children=[start_btn, pause_btn, stop_btn],
-                style=Pack(direction=ROW, spacing=8),
+                style=Pack(direction=ROW),
             )
         )
 

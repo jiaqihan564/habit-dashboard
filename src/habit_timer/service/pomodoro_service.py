@@ -16,22 +16,22 @@ class PomodoroService:
         return PomodoroSession(
             id=None,
             habit_id=habit_id,
-            start_time=dt.datetime.utcnow(),
+            start_time=dt.datetime.now(dt.timezone.utc),
             end_time=None,
             duration_seconds=planned_seconds,
             status="running",
         )
 
     def complete_session(self, session: PomodoroSession, success: bool = True) -> PomodoroSession:
-        session.end_time = dt.datetime.utcnow()
+        session.end_time = dt.datetime.now(dt.timezone.utc)
         session.status = "completed" if success else "aborted"
         return self.repo.add_session(session)
 
     def stats_today_week_month(self) -> Dict[str, int]:
-        now = dt.datetime.utcnow()
-        start_day = dt.datetime.combine(now.date(), dt.time.min)
+        now = dt.datetime.now(dt.timezone.utc)
+        start_day = dt.datetime.combine(now.date(), dt.time.min).replace(tzinfo=dt.timezone.utc)
         start_week = start_day - dt.timedelta(days=now.weekday())
-        start_month = dt.datetime(now.year, now.month, 1)
+        start_month = dt.datetime(now.year, now.month, 1, tzinfo=dt.timezone.utc)
         return {
             "today": self.repo.count_between(start_day, now),
             "this_week": self.repo.count_between(start_week, now),

@@ -68,10 +68,11 @@ class HabitTimerApp(toga.App):
 
     def refresh_views(self):
         """数据更新后刷新依赖视图。"""
-        self.stats_view.refresh()
+        self.stats_view.refresh_view()
         self.pomodoro_view.refresh_habits()
         self.pomodoro_view.load_default_time()
         self.calendar_view.refresh_habits()
+        self.today_view.refresh_view()
 
 
 def main():
